@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,73 @@ namespace FoldersAudit
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void FoldersControl_Initialized(object sender, EventArgs e)
+        {
+            foreach (DriveInfo drive in DriveInfo.GetDrives())
+            {
+                TreeViewItem item = new()
+                {
+                    Header = drive.Name,
+                    Tag = drive.RootDirectory,
+                    IsEnabled = drive.IsReady
+                };
+
+                FoldersControl.Items.Add(item);
+            }
+        }
+
+        private void FoldersControl_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            ExpandFoldersControlItem((TreeViewItem)e.NewValue);
+        }
+
+        private void FoldersControlItem_Expanded(object sender, RoutedEventArgs e)
+        {
+            ExpandFoldersControlItem((TreeViewItem)e.Source);
+        }
+
+        private void ExpandFoldersControlItem(TreeViewItem selectedItem)
+        {
+            Cursor = Cursors.Wait;
+
+            DirectoryInfo selectedDir = (DirectoryInfo)selectedItem.Tag;
+            selectedItem.Items.Clear();
+
+            EnumerationOptions options = new();
+            var dirs = selectedDir.GetDirectories("*", options);
+            ProgressControl.Maximum = dirs.Length;
+            int i = 0;
+
+            foreach (DirectoryInfo dir in dirs)
+            {
+                TreeViewItem item = new()
+                {
+                    Header = dir.Name,
+                    Tag = dir
+                };
+
+                var subdirs = dir.GetDirectories("*", options);
+                int count = subdirs.Length;
+                if (count > 0)
+                {
+                    item.Header = $"{dir.Name} +{count}";
+                    item.Items.Add(count);
+                    item.Expanded += FoldersControlItem_Expanded;
+                }
+
+                selectedItem.Items.Add(item);
+                ProgressControl.Value = ++i;
+            }
+
+            selectedItem.BringIntoView();
+            selectedItem.IsExpanded = true;
+
+            PathControl.Text = selectedDir.FullName;
+            ProgressControl.Value = 0;
+
+            Cursor = Cursors.Arrow;
         }
     }
 }
