@@ -60,36 +60,57 @@ namespace FoldersAudit
 
             EnumerationOptions options = new();
             var dirs = selectedDir.GetDirectories("*", options);
-            ProgressControl.Maximum = dirs.Length;
-            int i = 0;
+            int n = dirs.Length;
 
-            foreach (DirectoryInfo dir in dirs)
+            if (n > 0)
             {
-                TreeViewItem item = new()
-                {
-                    Header = dir.Name,
-                    Tag = dir
-                };
+                ProgressControl.Maximum = dirs.Length;
+                int i = 0;
 
-                var subdirs = dir.GetDirectories("*", options);
-                int count = subdirs.Length;
-                if (count > 0)
+                foreach (DirectoryInfo dir in dirs)
                 {
-                    item.Header = $"{dir.Name} +{count}";
-                    item.Items.Add(count);
-                    item.Expanded += FoldersControlItem_Expanded;
+                    TreeViewItem item = new()
+                    {
+                        Header = dir.Name,
+                        Tag = dir
+                    };
+
+                    var subdirs = dir.GetDirectories("*", options);
+                    int count = subdirs.Length;
+                    if (count > 0)
+                    {
+                        item.Header = $"{dir.Name} +{count}";
+                        item.Items.Add(count);
+                        item.Expanded += FoldersControlItem_Expanded;
+                    }
+
+                    selectedItem.Items.Add(item);
+                    ProgressControl.Value = ++i;
                 }
 
-                selectedItem.Items.Add(item);
-                ProgressControl.Value = ++i;
+                selectedItem.IsExpanded = true;
             }
-
             selectedItem.BringIntoView();
-            selectedItem.IsExpanded = true;
+            
 
             PathControl.Text = selectedDir.FullName;
-            ProgressControl.Value = 0;
 
+            FilesControl.Items.Clear();
+            var files = selectedDir.GetFiles("*", options);
+            n = files.Length;
+
+            if (n > 0)
+            {
+                ProgressControl.Maximum = n;
+                int i = 0;
+                foreach (FileInfo file in files)
+                {
+                    FilesControl.Items.Add(file.Name);
+                    ProgressControl.Value = ++i;
+                }
+            }
+
+            ProgressControl.Value = 0;
             Cursor = Cursors.Arrow;
         }
     }

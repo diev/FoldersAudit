@@ -27,7 +27,7 @@
                 <TextBlock x:Name="StatusControl" Text="Готово"/>
             </StatusBarItem>
             <StatusBarItem Grid.Column="1">
-                <ProgressBar x:Name="ProgressControl" Value="0" Width="100" Margin="3,0,20,0"/>
+                <ProgressBar x:Name="ProgressControl" Value="0" Width="100" Margin="3,0,20,0" Height="10"/>
             </StatusBarItem>
         </StatusBar>
             
@@ -57,9 +57,17 @@
             <ListView x:Name="UsersControl" Grid.Column="4"/>
             
             <GridSplitter Grid.Column="2" Grid.Row="1" Height="3" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-            
-            <ListView x:Name="FilesControl" Grid.Column="2" Grid.Row="2"/>
-            
+
+            <ListView x:Name="FilesControl" Grid.Column="2" Grid.Row="2">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Файл"/>
+                        <GridViewColumn Header="Тип"/>
+                        <GridViewColumn Header="Изменение"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
             <GridSplitter Grid.Column="4" Height="3" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
             
             <ListView x:Name="GroupsControl" Grid.Column="4" Grid.Row="2"/>
